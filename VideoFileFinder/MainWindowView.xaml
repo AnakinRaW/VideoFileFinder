@@ -1,0 +1,130 @@
+﻿<Window x:Class="VideoFileFinder.MainWindowView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:videoFileFinder="clr-namespace:VideoFileFinder"
+        xmlns:cal="http://www.caliburnproject.org"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <FrameworkElement.Resources>
+        <DataTemplate x:Key="DriveDataTemplate" DataType="{x:Type videoFileFinder:DriveItemData}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="{Binding DriveInfo.Name}"/>
+                <TextBlock Text="{Binding DriveInfo.VolumeLabel}"/>
+                <CheckBox IsChecked="{Binding Selected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right"/>
+            </StackPanel>
+        </DataTemplate>
+
+
+        <DataTemplate x:Key="FileDataTemplate" DataType="{x:Type videoFileFinder:FileEntry}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="21"/>
+                    <RowDefinition Height="21"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Image Height="100" Width="100" Source="{Binding Thumbnail}"/>
+                <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" Width="100" 
+                           ToolTip="{Binding FilePath}">
+                    <Run Text="{Binding Tags, Mode=OneWay}"/>
+                </TextBlock>
+                <TextBlock Grid.Row="2" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" Width="100" 
+                           ToolTip="{Binding FilePath}">
+                    <Run Text="{Binding FilePath, Mode=OneWay}"/>
+                </TextBlock>
+            </Grid>
+
+        </DataTemplate>
+
+
+        <DataTemplate x:Key="ResultDataTemplate" DataType="{x:Type videoFileFinder:RandomEntry}">
+            <Border BorderThickness="1" BorderBrush="Gray">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*" MaxHeight="200"/>
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="{Binding Filter}"/>
+                            <TextBlock Text=";"/>
+                            <TextBlock Text="{Binding Drives}"/>
+                            <TextBlock Text=";"/>
+                            <TextBlock Text="{Binding LogicalOr}"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="X" Padding="6,3"
+                                cal:Message.Attach="[Event Click] = [Action OnListEntryRemove($dataContext)]"/>
+                    </Grid>
+                    
+                    <ScrollViewer Grid.Row="1">
+                        <ListView x:Name="ListView" ItemsSource="{Binding Files}" ItemTemplate="{StaticResource FileDataTemplate}"
+                                  cal:Message.Attach="[Event MouseDoubleClick] = [Action ItemActivated(ListView.SelectedItem)];
+                                  [Event KeyDown] = [Action OnKeyDown($eventArgs, ListView.SelectedItem)]">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ListView>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+
+    </FrameworkElement.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="File">
+                <MenuItem Header="Generate CSV" Command="{Binding GenerateCsvCommand}"/>
+            </MenuItem>
+        </Menu>
+        <Grid Grid.Row="1" Margin="6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="200"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Margin="0,0,6,0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ItemsControl ItemsSource="{Binding Drives}" ItemTemplate="{StaticResource DriveDataTemplate}"/>
+                <StackPanel Orientation="Horizontal" Grid.Row="1"  Margin="0,3,0,0">
+                    <Label>Random Files:</Label>
+                    <TextBox Width="30" Text="{Binding CountRandom, Mode=TwoWay}" HorizontalAlignment="Left"/>
+                </StackPanel>
+                <TextBox Grid.Row="2" Height="50" Text="{Binding TagInput, UpdateSourceTrigger=LostFocus}"/>
+                <CheckBox Grid.Row="3" IsChecked="{Binding LogicalOr, Mode=TwoWay}">Filter Logical OR</CheckBox>
+            </Grid>
+            <Rectangle Width="1" Grid.Column="1" Stroke="Gray"/>
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ScrollViewer Grid.Row="0">
+                    <ItemsControl ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource ResultDataTemplate}"/>
+                </ScrollViewer>
+                <StackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <CheckBox Content="Use csv" VerticalAlignment="Center" Margin="0,0,6,0" IsChecked="{Binding UseCsv, Mode=TwoWay}"/>
+                    <Button MinHeight="21" MinWidth="75" Padding="6,0" Command="{Binding PickFilesCommand}" IsDefault="True">Pick Files</Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</Window>
