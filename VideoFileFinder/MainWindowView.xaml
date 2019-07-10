@@ -58,7 +58,7 @@
                             <TextBlock Text=";"/>
                             <TextBlock Text="{Binding LogicalOr}"/>
                         </StackPanel>
-                        <Button Grid.Column="1" Content="X" Padding="6,3"
+                        <Button Grid.Column="1" Content="X" Padding="6,3" Margin="3"
                                 cal:Message.Attach="[Event Click] = [Action OnListEntryRemove($dataContext)]"/>
                     </Grid>
                     
@@ -105,9 +105,9 @@
                 <ItemsControl ItemsSource="{Binding Drives}" ItemTemplate="{StaticResource DriveDataTemplate}"/>
                 <StackPanel Orientation="Horizontal" Grid.Row="1"  Margin="0,3,0,0">
                     <Label>Random Files:</Label>
-                    <TextBox Width="30" Text="{Binding CountRandom, Mode=TwoWay}" HorizontalAlignment="Left"/>
+                    <TextBox Width="30" Text="{Binding CountRandom, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left"/>
                 </StackPanel>
-                <TextBox Grid.Row="2" Height="50" Text="{Binding TagInput, UpdateSourceTrigger=LostFocus}"/>
+                <TextBox Grid.Row="2" Height="50" Text="{Binding TagInput, UpdateSourceTrigger=PropertyChanged}"/>
                 <CheckBox Grid.Row="3" IsChecked="{Binding LogicalOr, Mode=TwoWay}">Filter Logical OR</CheckBox>
             </Grid>
             <Rectangle Width="1" Grid.Column="1" Stroke="Gray"/>
