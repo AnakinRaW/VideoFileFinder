@@ -42,6 +42,9 @@ namespace VideoFileFinder
             if (searchTags == null || !searchTags.Any() || (searchTags.Count == 1 && searchTags.First() == string.Empty))
                 return true;
 
+            if (fileTags == null)
+                return false;
+
             if (logicalOr)
             {
                 if (fileTags.Intersect(searchTags).Any())

@@ -125,7 +125,7 @@ namespace VideoFileFinder
 
             foreach (var file in files)
             {
-                var tags = FileSystemHelper.GetFileTags(file).ToList();
+                var tags = FileSystemHelper.GetFileTags(file)?.ToList();
                 if (FileSystemHelper.CheckFileFilter(tags, filters, LogicalOr))
                     filteredFiles.Add(file);
             }
