@@ -8,6 +8,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <FrameworkElement.Resources>
+
+        <ContextMenu x:Key="FileEntryContextMenu">
+            <MenuItem Header="Pin" Command="{Binding Path=DataContext.PinCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}"
+                      Background="WhiteSmoke" />
+        </ContextMenu>
+
+        <ContextMenu x:Key="PinnedFileEntryContextMenu">
+            <MenuItem Header="Remove" Command="{Binding Path=DataContext.RemovedPinCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"
+                      CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=DataContext}"
+                      Background="WhiteSmoke" />
+        </ContextMenu>
+
         <DataTemplate x:Key="DriveDataTemplate" DataType="{x:Type videoFileFinder:DriveItemData}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding DriveInfo.Name}"/>
@@ -27,7 +40,7 @@
                 </Grid.RowDefinitions>
                 <Image Height="100" Width="100" Source="{Binding Thumbnail}"/>
                 <TextBlock Grid.Row="1" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" Width="100" 
-                           ToolTip="{Binding FilePath}">
+                           ToolTip="{Binding Tags}">
                     <Run Text="{Binding Tags, Mode=OneWay}"/>
                 </TextBlock>
                 <TextBlock Grid.Row="2" TextWrapping="WrapWithOverflow" TextTrimming="CharacterEllipsis" Width="100" 
@@ -71,6 +84,11 @@
                                     <WrapPanel/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="{x:Type ListViewItem}" >
+                                    <Setter Property="ContextMenu" Value="{StaticResource FileEntryContextMenu}" />
+                                </Style>
+                            </ListView.ItemContainerStyle>
                         </ListView>
                     </ScrollViewer>
                 </Grid>
@@ -94,6 +112,7 @@
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
                 <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto" MinWidth="150"/>
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0" Margin="0,0,6,0">
                 <Grid.RowDefinitions>
@@ -124,6 +143,22 @@
                     <Button MinHeight="21" MinWidth="75" Padding="6,0" Command="{Binding PickFilesCommand}" IsDefault="True">Pick Files</Button>
                 </StackPanel>
             </Grid>
+            <ScrollViewer Grid.Row="0" Grid.Column="3">
+                <ListView x:Name="PinnedListView" ItemsSource="{Binding PinnedEntries}" ItemTemplate="{StaticResource FileDataTemplate}"
+                          cal:Message.Attach="[Event MouseDoubleClick] = [Action ItemActivated(PinnedListView.SelectedItem)];
+                                  [Event KeyDown] = [Action OnKeyDown($eventArgs, PinnedListView.SelectedItem)]">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="{x:Type FrameworkElement}" >
+                            <Setter Property="ContextMenu" Value="{StaticResource PinnedFileEntryContextMenu}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ListView>
+            </ScrollViewer>
         </Grid>
 
     </Grid>

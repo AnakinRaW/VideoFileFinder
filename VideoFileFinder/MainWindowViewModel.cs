@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Controls;
 using System.Windows.Input;
 using Caliburn.Micro;
 using ModernApplicationFramework.Input.Command;
@@ -25,6 +24,10 @@ namespace VideoFileFinder
 
 
         public ICommand PickFilesCommand => new UICommand(CreateRandomEntry, () => true);
+
+        public ICommand PinCommand => new DelegateCommand(PinFileEntry, o => true);
+        public ICommand RemovedPinCommand => new DelegateCommand(RemovePin, o => true);
+
         public ICommand GenerateCsvCommand => new UICommand(() => CsvTable.GenerateCsv(SupportedFileTypes.ToList(), Drives), () => true);
         
         public IEnumerable<DriveItemData> Drives
@@ -83,6 +86,8 @@ namespace VideoFileFinder
         }
 
         public IObservableCollection<RandomEntry> SearchResults { get; } = new BindableCollection<RandomEntry>();
+       
+        public IObservableCollection<FileEntry> PinnedEntries { get; } = new BindableCollection<FileEntry>();
 
         public MainWindowViewModel()
         {
@@ -158,7 +163,7 @@ namespace VideoFileFinder
 
             var entry = new RandomEntry(randomFiles, sortedFilterText, drives, LogicalOr);
             if (!entry.Files.Any())
-                return;
+                return; 
             SearchResults.Add(entry);
         }
         
@@ -202,6 +207,22 @@ namespace VideoFileFinder
             }
 
             return result;
+        }
+
+        private void PinFileEntry(object o)
+        {
+            if (!(o is FileEntry fileEntry))
+                return;
+            if (PinnedEntries.Contains(fileEntry))
+                return;
+            PinnedEntries.Add(fileEntry);
+        }
+
+        private void RemovePin(object o)
+        {
+            if (!(o is FileEntry fileEntry))
+                return;
+            PinnedEntries.Remove(fileEntry);
         }
     }
 }
