@@ -116,7 +116,7 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <ScrollViewer Grid.Row="0">
+                <ScrollViewer Grid.Row="0" Background="Transparent">
                     <ItemsControl ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource ResultDataTemplate}"/>
                 </ScrollViewer>
                 <StackPanel Grid.Row="1" HorizontalAlignment="Right" Orientation="Horizontal">

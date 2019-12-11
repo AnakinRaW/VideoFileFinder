@@ -98,6 +98,7 @@
     </ApplicationDefinition>
     <Compile Include="CsvEntry.cs" />
     <Compile Include="CsvTable.cs" />
+    <Compile Include="FileEntry.cs" />
     <Compile Include="FileSystemHelper.cs" />
     <Compile Include="EnumerableHelper.cs" />
     <Compile Include="RandomEntry.cs" />
