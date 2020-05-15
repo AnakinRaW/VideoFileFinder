@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 using Caliburn.Micro;
 using ModernApplicationFramework.Input.Command;
@@ -22,6 +24,16 @@ namespace VideoFileFinder
         private string _countRandom = 5.ToString();
         private bool _useCsv;
 
+        static MainWindowViewModel()
+        {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception exception)
+                MessageBox.Show(exception.Message);
+        }
 
         public ICommand PickFilesCommand => new UICommand(CreateRandomEntry, () => true);
 
@@ -140,31 +152,38 @@ namespace VideoFileFinder
         
         private void CreateRandomEntry()
         {
-            var searchResult = new List<string>();
-
-            var filterText = TagInput;
-            var filter = filterText.Split(';');
-            var sortedFilters = filter.OrderBy(x => x).Select(x => x.Trim()).ToList();
-            var sortedFilterText = string.Join(";", sortedFilters);
-
-            switch (UseCsv)
+            try
             {
-                case true:
-                    searchResult.AddRange(CsvTable.GetFilesFromCsv(sortedFilterText, LogicalOr));
-                    break;
-                default:
-                    searchResult.AddRange(GetSearchResultFromDisk(sortedFilterText));
-                    break;
+                var searchResult = new List<string>();
+
+                var filterText = TagInput;
+                var filter = filterText.Split(';');
+                var sortedFilters = filter.OrderBy(x => x).Select(x => x.Trim()).ToList();
+                var sortedFilterText = string.Join(";", sortedFilters);
+
+                switch (UseCsv)
+                {
+                    case true:
+                        searchResult.AddRange(CsvTable.GetFilesFromCsv(sortedFilterText, LogicalOr));
+                        break;
+                    default:
+                        searchResult.AddRange(GetSearchResultFromDisk(sortedFilterText));
+                        break;
+                }
+
+                var randomFiles = PickRandom(searchResult).ToList();
+
+                var drives = string.Join(";", Drives.Where(x => x.Selected).ToList().Select(x => x.DriveInfo.Name.First()));
+                var existingFiles = randomFiles.Where(File.Exists);
+                var entry = new RandomEntry(existingFiles, sortedFilterText, drives, LogicalOr);
+                if (!entry.Files.Any())
+                    return;
+                SearchResults.Add(entry);
             }
-
-            var randomFiles = PickRandom(searchResult).ToList();
-
-            var drives = string.Join(";", Drives.Where(x => x.Selected).ToList().Select(x => x.DriveInfo.Name.First()));
-
-            var entry = new RandomEntry(randomFiles, sortedFilterText, drives, LogicalOr);
-            if (!entry.Files.Any())
-                return; 
-            SearchResults.Add(entry);
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
         }
         
         private IEnumerable<string> GetSearchResultFromDisk(string filter)
